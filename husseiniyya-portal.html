@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Husseiniyya Islamic School Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<style>
+  /* ── TOKENS ─────────────────────────────────────────── */
+  :root {
+    --green-deep:   #0A5C2E;
+    --green-mid:    #1A7A3F;
+    --green-light:  #2EA65A;
+    --green-pale:   #E8F5EE;
+    --green-border: #B8DFC7;
+    --gold:         #C9A84C;
+    --gold-light:   #F5EDD4;
+    --white:        #FFFFFF;
+    --off-white:    #F7FAF8;
+    --text-dark:    #0D1F15;
+    --text-mid:     #3A5446;
+    --text-soft:    #6B8F7A;
+    --danger:       #C0392B;
+    --warning:      #E67E22;
+    --shadow-sm:    0 1px 4px rgba(10,92,46,0.08);
+    --shadow-md:    0 4px 20px rgba(10,92,46,0.12);
+    --shadow-lg:    0 8px 40px rgba(10,92,46,0.16);
+    --radius:       12px;
+    --radius-sm:    8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--off-white);
+    color: var(--text-dark);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── LAYOUT ─────────────────────────────────────────── */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: flex; flex-direction: column; }
+
+  /* ── AUTH PAGES ─────────────────────────────────────── */
+  .auth-wrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, var(--green-deep) 0%, var(--green-mid) 60%, var(--green-light) 100%);
+    padding: 24px 16px;
+  }
+
+  .auth-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .school-brand {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .school-logo {
+    width: 80px;
+    height: 80px;
+    background: var(--green-pale);
+    border: 3px solid var(--green-mid);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 32px;
+  }
+
+  .school-name-en {
+    font-family: 'Inter', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--green-deep);
+    letter-spacing: 0.3px;
+  }
+
+  .school-name-ar {
+    font-family: 'Amiri', serif;
+    font-size: 22px;
+    color: var(--green-mid);
+    direction: rtl;
+    margin-top: 2px;
+  }
+
+  .school-sub {
+    font-size: 12px;
+    color: var(--text-soft);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .auth-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+
+  .auth-subtitle {
+    font-size: 13px;
+    color: var(--text-soft);
+    margin-bottom: 24px;
+  }
+
+  /* ── FORM ELEMENTS ──────────────────────────────────── */
+  .field {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+  }
+
+  label .ar {
+    font-family: 'Amiri', serif;
+    font-size: 15px;
+    color: var(--text-soft);
+    margin-right: 6px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--green-border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    background: var(--white);
+    color: var(--text-dark);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--green-mid);
+    box-shadow: 0 0 0 3px rgba(26,122,63,0.12);
+  }
+
+  input::placeholder { color: #B0C4BA; }
+
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .btn-primary {
+    background: var(--green-mid);
+    color: var(--white);
+  }
+
+  .btn-primary:hover { background: var(--green-deep); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--green-mid);
+    border: 1.5px solid var(--green-mid);
+  }
+
+  .btn-outline:hover { background: var(--green-pale); }
+
+  .btn-danger {
+    background: var(--danger);
+    color: var(--white);
+  }
+
+  .btn-sm {
+    width: auto;
+    padding: 7px 14px;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+
+  .btn-gold {
+    background: var(--gold);
+    color: var(--white);
+  }
+
+  .btn-gold:hover { background: #a8873a; }
+
+  .link-btn {
+    background: none;
+    border: none;
+    color: var(--green-mid);
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .link-btn:hover { text-decoration: underline; }
+
+  .auth-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+
+  /* ── ALERTS ─────────────────────────────────────────── */
+  .alert {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .alert.show { display: block; }
+  .alert-error { background: #FDECEA; color: var(--danger); border: 1px solid #F5C6C2; }
+  .alert-success { background: var(--green-pale); color: var(--green-deep); border: 1px solid var(--green-border); }
+  .alert-warn { background: #FEF3E2; color: #7D4F00; border: 1px solid #F9D89C; }
+
+  /* ── TOP NAV ─────────────────────────────────────────── */
+  .topnav {
+    background: var(--green-deep);
+    color: var(--white);
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 58px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .topnav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .topnav-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .topnav-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+
+  .topnav-sub {
+    font-size: 11px;
+    opacity: 0.7;
+    font-family: 'Amiri', serif;
+  }
+
+  .topnav-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .user-badge {
+    font-size: 12px;
+    opacity: 0.85;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .icon-btn {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .icon-btn:hover { background: rgba(255,255,255,0.25); }
+
+  /* ── BOTTOM TAB NAV ─────────────────────────────────── */
+  .tabnav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-top: 1px solid var(--green-border);
+    display: flex;
+    z-index: 100;
+    box-shadow: 0 -2px 12px rgba(10,92,46,0.1);
+  }
+
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+    gap: 3px;
+  }
+
+  .tab-item .tab-icon { font-size: 20px; }
+  .tab-item .tab-label { font-size: 10px; font-weight: 500; color: var(--text-soft); }
+  .tab-item.active .tab-label { color: var(--green-mid); font-weight: 600; }
+  .tab-item.active .tab-icon { filter: none; }
+
+  .tab-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--green-mid);
+    display: none;
+  }
+
+  .tab-item.active .tab-dot { display: block; }
+
+  /* ── MAIN CONTENT ────────────────────────────────────── */
+  .main-content {
+    flex: 1;
+    padding: 16px 16px 90px;
+    max-width: 700px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ── SECTION PANELS ─────────────────────────────────── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .panel-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--green-deep);
+    margin-bottom: 4px;
+  }
+
+  .panel-title-ar {
+    font-family: 'Amiri', serif;
+    font-size: 20px;
+    color: var(--text-soft);
+    direction: rtl;
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  /* ── CARDS ──────────────────────────────────────────── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 14px;
+    border: 1px solid rgba(184,223,199,0.4);
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── STAT GRID ──────────────────────────────────────── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+    border: 1px solid var(--green-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--green-mid);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-soft);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* ── STUDENT LIST ────────────────────────────────────── */
+  .student-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--green-pale);
+  }
+
+  .student-item:last-child { border-bottom: none; }
+
+  .student-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-dark);
+  }
+
+  .student-class {
+    font-size: 12px;
+    color: var(--text-soft);
+    margin-top: 2px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-green { background: var(--green-pale); color: var(--green-deep); }
+  .badge-gold { background: var(--gold-light); color: #7A5C00; }
+  .badge-red { background: #FDECEA; color: var(--danger); }
+  .badge-gray { background: #F0F0F0; color: #666; }
+
+  /* ── RECORD ENTRY FORM ──────────────────────────────── */
+  .record-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* ── DIVIDER ─────────────────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: var(--green-border);
+    margin: 20px 0;
+    opacity: 0.5;
+  }
+
+  .section-head {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green-mid);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  /* ── ATTENDANCE TABLE ───────────────────────────────── */
+  .att-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .att-table th {
+    background: var(--green-deep);
+    color: white;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .att-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--green-pale);
+  }
+
+  .att-table tr:hover td { background: var(--green-pale); }
+
+  /* ── SUBJECT TAGS ────────────────────────────────────── */
+  .subject-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .subject-tag {
+    background: var(--green-pale);
+    border: 1px solid var(--green-border);
+    color: var(--green-deep);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .subject-tag.selected, .subject-tag:hover {
+    background: var(--green-mid);
+    color: white;
+    border-color: var(--green-mid);
+  }
+
+  .subject-tag .remove {
+    margin-left: 6px;
+    font-size: 11px;
+    opacity: 0.7;
+  }
+
+  /* ── PENDING TEACHER ─────────────────────────────────── */
+  .pending-item {
+    background: var(--white);
+    border: 1px solid var(--green-border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+
+  .pending-name { font-weight: 700; font-size: 15px; color: var(--text-dark); }
+  .pending-email { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+  .pending-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+  /* ── LOADING ─────────────────────────────────────────── */
+  .loading-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    flex-direction: column;
+    gap: 12px;
+    color: var(--text-soft);
+    font-size: 14px;
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--green-pale);
+    border-top-color: var(--green-mid);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── TOAST ──────────────────────────────────────────── */
+  #toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--green-deep);
+    color: white;
+    padding: 11px 22px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 9999;
+    white-space: nowrap;
+    pointer-events: none;
+    max-width: 90vw;
+  }
+
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── MODAL ───────────────────────────────────────────── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal-sheet {
+    background: var(--white);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 36px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-handle {
+    width: 40px;
+    height: 4px;
+    background: var(--green-border);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  .modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 16px;
+  }
+
+  /* ── PENDING BADGE ON TAB ───────────────────────────── */
+  .tab-badge {
+    position: absolute;
+    top: 6px;
+    right: calc(50% - 18px);
+    background: var(--danger);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+  }
+
+  .tab-wrap { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; }
+
+  /* ── SETUP BANNER ────────────────────────────────────── */
+  .setup-banner {
+    background: var(--gold-light);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #5A3E00;
+  }
+
+  .setup-banner strong { display: block; font-size: 14px; margin-bottom: 4px; }
+
+  code {
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  /* ── RESPONSIVE ─────────────────────────────────────── */
+  @media (max-width: 360px) {
+    .auth-card { padding: 28px 20px; }
+    .row-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     FIREBASE CONFIG PAGE
+════════════════════════════════════════ -->
+<div id="page-config" class="page active">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="school-brand">
+        <div class="school-logo">🕌</div>
+        <div class="school-name-en">Husseiniyya Islamic School</div>
+        <div class="school-name-ar">مدرسة حسينية الإسلامية</div>
+        <div class="school-sub">Bekwai – Ashanti</div>
+      </div>
+
+      <div class="setup-banner">
+        <strong>⚙️ First-time Setup</strong>
+        Paste your Firebase config below. You only do this once.
+        After saving, open your Firebase console → Enable <strong>Email/Password Authentication</strong> and create a <strong>Firestore Database</strong>.
+      </div>
+
+      <div id="config-alert" class="alert"></div>
+
+      <div class="field">
+        <label>Firebase API Key</label>
+        <input id="cfg-apiKey" type="text" placeholder="AIzaSy..."/>
+      </div>
+      <div class="field">
+        <label>Auth Domain</label>
+        <input id="cfg-authDomain" type="text" placeholder="yourapp.firebaseapp.com"/>
+      </div>
+      <div class="field">
+        <label>Project ID</label>
+        <input id="cfg-projectId" type="text" placeholder="yourapp-12345"/>
+      </div>
+      <div class="field">
+        <label>Storage Bucket</label>
+        <input id="cfg-storageBucket" type="text" placeholder="yourapp.appspot.com"/>
+      </div>
+      <div class="field">
+        <label>Messaging Sender ID</label>
+        <input id="cfg-messagingSenderId" type="text" placeholder="123456789012"/>
+      </div>
+      <div class="field">
+        <label>App ID</label>
+        <input id="cfg-appId" type="text" placeholder="1:123456789012:web:abc..."/>
+      </div>
+
+      <div class="field">
+        <label>Admin Email (your email — will have full access)</label>
+        <input id="cfg-adminEmail" type="email" placeholder="admin@example.com"/>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveConfig()">Save & Continue →</button>
+
+      <div style="margin-top:14px;font-size:12px;color:var(--text-soft);text-align:center;">
+        Your config is saved only on this device (localStorage).
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     LOGIN PAGE
+════════════════════════════════════════ -->
+<div id="page-login" class="page">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="school-brand">
+        <div class="school-logo">🕌</div>
+        <div class="school-name-en">Husseiniyya Islamic School</div>
+        <div class="school-name-ar">مدرسة حسينية الإسلامية</div>
+        <div class="school-sub">Bekwai – Ashanti · Teacher Portal</div>
+      </div>
+
+      <div id="login-alert" class="alert"></div>
+
+      <div class="auth-title">Sign in <span style="font-family:'Amiri',serif;font-size:16px;color:var(--text-soft);">تسجيل الدخول</span></div>
+      <div class="auth-subtitle">Enter your registered email and password</div>
+
+      <div class="field">
+        <label><span class="ar">البريد</span> Email</label>
+        <input id="login-email" type="email" placeholder="teacher@example.com" autocomplete="email"/>
+      </div>
+      <div class="field">
+        <label><span class="ar">كلمة المرور</span> Password</label>
+        <input id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+
+      <button class="btn btn-primary" onclick="doLogin()" style="margin-bottom:12px;">Sign In</button>
+      <button class="link-btn" onclick="showPage('page-forgot')" style="display:block;text-align:center;width:100%;margin-bottom:8px;">Forgot password? نسيت كلمة المرور؟</button>
+
+      <div class="auth-footer">
+        New teacher? <button class="link-btn" onclick="showPage('page-signup')">Request an account →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SIGNUP PAGE
+════════════════════════════════════════ -->
+<div id="page-signup" class="page">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="school-brand">
+        <div class="school-logo">🕌</div>
+        <div class="school-name-en">Husseiniyya Islamic School</div>
+        <div class="school-name-ar">مدرسة حسينية الإسلامية</div>
+      </div>
+
+      <div id="signup-alert" class="alert"></div>
+
+      <div class="auth-title">Teacher Sign Up <span style="font-family:'Amiri',serif;font-size:16px;color:var(--text-soft);">تسجيل معلم</span></div>
+      <div class="auth-subtitle">Your account will be reviewed by the admin before you can sign in.</div>
+
+      <div class="field">
+        <label>Full Name <span class="ar">الاسم الكامل</span></label>
+        <input id="su-name" type="text" placeholder="e.g. Usman Al-Hassan"/>
+      </div>
+      <div class="field">
+        <label>Email <span class="ar">البريد</span></label>
+        <input id="su-email" type="email" placeholder="teacher@example.com"/>
+      </div>
+      <div class="field">
+        <label>Phone <span class="ar">الهاتف</span></label>
+        <input id="su-phone" type="tel" placeholder="+233 ..."/>
+      </div>
+      <div class="field">
+        <label>Class You Teach <span class="ar">الفصل</span></label>
+        <select id="su-class">
+          <option value="">— Select —</option>
+          <option>KG</option><option>Class 1</option><option>Class 2</option>
+          <option>Class 3</option><option>Class 4</option><option>Class 5</option><option>Class 6</option>
+          <option>All / Multiple</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Password <span class="ar">كلمة المرور</span></label>
+        <input id="su-pass" type="password" placeholder="At least 8 characters" autocomplete="new-password"/>
+      </div>
+      <div class="field">
+        <label>Confirm Password <span class="ar">تأكيد كلمة المرور</span></label>
+        <input id="su-pass2" type="password" placeholder="Repeat password" autocomplete="new-password"/>
+      </div>
+
+      <button class="btn btn-primary" onclick="doSignup()" style="margin-bottom:12px;">Request Account</button>
+      <div class="auth-footer">
+        Already have an account? <button class="link-btn" onclick="showPage('page-login')">Sign in →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     FORGOT PASSWORD PAGE
+════════════════════════════════════════ -->
+<div id="page-forgot" class="page">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="school-brand">
+        <div class="school-logo">🔑</div>
+        <div class="school-name-en">Reset Password</div>
+        <div class="school-name-ar">إعادة تعيين كلمة المرور</div>
+      </div>
+
+      <div id="forgot-alert" class="alert"></div>
+      <div class="auth-subtitle" style="margin-bottom:20px;">Enter your email and we'll send you a reset link.</div>
+
+      <div class="field">
+        <label>Email <span class="ar">البريد</span></label>
+        <input id="forgot-email" type="email" placeholder="teacher@example.com"/>
+      </div>
+
+      <button class="btn btn-primary" onclick="doForgot()" style="margin-bottom:12px;">Send Reset Link</button>
+      <div class="auth-footer">
+        <button class="link-btn" onclick="showPage('page-login')">← Back to sign in</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PENDING APPROVAL PAGE
+════════════════════════════════════════ -->
+<div id="page-pending" class="page">
+  <div class="auth-wrap">
+    <div class="auth-card" style="text-align:center;">
+      <div style="font-size:60px;margin-bottom:16px;">⏳</div>
+      <div class="auth-title">Account Pending Approval</div>
+      <div class="school-name-ar" style="margin-bottom:12px;">الحساب قيد المراجعة</div>
+      <p style="font-size:14px;color:var(--text-soft);line-height:1.6;margin-bottom:24px;">
+        Your account has been created. The admin will review and approve your request.
+        You'll be able to sign in once approved. <br/><br/>
+        <span style="font-family:'Amiri',serif;font-size:16px;">سيتم إخطارك بعد الموافقة</span>
+      </p>
+      <button class="btn btn-outline" onclick="doLogout()">Sign Out / تسجيل الخروج</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MAIN APP
+════════════════════════════════════════ -->
+<div id="page-app" class="page">
+
+  <!-- TOP NAV -->
+  <div class="topnav">
+    <div class="topnav-brand">
+      <div class="topnav-icon">🕌</div>
+      <div>
+        <div class="topnav-title">Husseiniyya</div>
+        <div class="topnav-sub">مدرسة حسينية</div>
+      </div>
+    </div>
+    <div class="topnav-right">
+      <span class="user-badge" id="nav-user-name"></span>
+      <button class="icon-btn" onclick="doLogout()" title="Sign out">↩</button>
+    </div>
+  </div>
+
+  <!-- CONTENT AREA -->
+  <div class="main-content">
+
+    <!-- ── HOME PANEL ───────────── -->
+    <div id="panel-home" class="panel active">
+      <div class="panel-title">Dashboard</div>
+      <div class="panel-title-ar">لوحة التحكم</div>
+
+      <div id="home-loading" class="loading-wrap"><div class="spinner"></div>Loading…</div>
+
+      <div id="home-content" style="display:none">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-num" id="stat-students">—</div>
+            <div class="stat-label">📚 Students</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-results">—</div>
+            <div class="stat-label">📝 Results Entered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-att">—</div>
+            <div class="stat-label">✅ Attendance Records</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-payments">—</div>
+            <div class="stat-label">💰 Payments (GH₵)</div>
+          </div>
+        </div>
+
+        <div class="card" id="home-class-info">
+          <div class="card-title">🏫 Your Class</div>
+          <div id="home-class-detail" style="font-size:14px;color:var(--text-soft);">Loading…</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📋 Quick Actions</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button class="btn btn-outline" onclick="switchTab('students')">➕ Add / View Students</button>
+            <button class="btn btn-outline" onclick="switchTab('records')">📝 Enter Results</button>
+            <button class="btn btn-outline" onclick="switchTab('records')">✅ Mark Attendance</button>
+            <button class="btn btn-outline" onclick="switchTab('records')">💰 Record Payment</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STUDENTS PANEL ─────── -->
+    <div id="panel-students" class="panel">
+      <div class="panel-title">Students</div>
+      <div class="panel-title-ar">الطلاب</div>
+
+      <div class="card">
+        <div class="card-title">Filter by Class <span style="font-family:'Amiri',serif;font-weight:400;color:var(--text-soft);">تصفية حسب الفصل</span></div>
+        <select id="filter-class" onchange="loadStudents()" style="margin-bottom:0">
+          <option value="all">All Classes</option>
+          <option>KG</option><option>Class 1</option><option>Class 2</option>
+          <option>Class 3</option><option>Class 4</option><option>Class 5</option><option>Class 6</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" onclick="openAddStudent()" style="margin-bottom:14px;">+ Add Student</button>
+
+      <div id="students-loading" class="loading-wrap"><div class="spinner"></div>Loading students…</div>
+      <div id="students-list"></div>
+    </div>
+
+    <!-- ── RECORDS PANEL ─────── -->
+    <div id="panel-records" class="panel">
+      <div class="panel-title">Enter Records</div>
+      <div class="panel-title-ar">إدخال البيانات</div>
+
+      <!-- Record type tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="btn btn-sm" id="rec-tab-result" onclick="switchRecTab('result')" style="flex:1">📝 Results</button>
+        <button class="btn btn-sm btn-outline" id="rec-tab-att" onclick="switchRecTab('att')" style="flex:1">✅ Attendance</button>
+        <button class="btn btn-sm btn-outline" id="rec-tab-pay" onclick="switchRecTab('pay')" style="flex:1">💰 Payment</button>
+      </div>
+
+      <!-- RESULTS FORM -->
+      <div id="rec-result" class="card">
+        <div class="card-title">📝 Enter Results <span style="font-family:'Amiri';font-weight:400;color:var(--text-soft);">إدخال النتائج</span></div>
+        <div class="record-form">
+          <div class="row-2">
+            <div class="field" style="margin:0">
+              <label>Class</label>
+              <select id="res-class" onchange="loadStudentsForSelect('res-class','res-student')">
+                <option value="">— Select —</option>
+                <option>KG</option><option>Class 1</option><option>Class 2</option>
+                <option>Class 3</option><option>Class 4</option><option>Class 5</option><option>Class 6</option>
+              </select>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Student</label>
+              <select id="res-student"><option value="">— Pick class first —</option></select>
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field" style="margin:0">
+              <label>Term</label>
+              <select id="res-term">
+                <option>Term 1</option><option>Term 2</option><option>Term 3</option>
+              </select>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Academic Year</label>
+              <input id="res-year" type="text" placeholder="e.g. 2024/2025"/>
+            </div>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Subject <span style="font-family:'Amiri';font-size:14px;color:var(--text-soft);">المادة</span></label>
+            <input id="res-subject" type="text" placeholder="e.g. Quran, Arabic, Mathematics…"/>
+          </div>
+          <div class="row-3">
+            <div class="field" style="margin:0">
+              <label>Score</label>
+              <input id="res-score" type="number" min="0" max="100" placeholder="0–100"/>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Out of</label>
+              <input id="res-outof" type="number" placeholder="100" value="100"/>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Grade</label>
+              <input id="res-grade" type="text" placeholder="A, B…" maxlength="3"/>
+            </div>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Remarks (optional)</label>
+            <input id="res-remarks" type="text" placeholder="e.g. Excellent performance"/>
+          </div>
+          <button class="btn btn-primary" onclick="saveResult()">Save Result ✓</button>
+        </div>
+      </div>
+
+      <!-- ATTENDANCE FORM -->
+      <div id="rec-att" class="card" style="display:none">
+        <div class="card-title">✅ Mark Attendance <span style="font-family:'Amiri';font-weight:400;color:var(--text-soft);">الحضور</span></div>
+        <div class="record-form">
+          <div class="row-2">
+            <div class="field" style="margin:0">
+              <label>Class</label>
+              <select id="att-class" onchange="loadStudentsForSelect('att-class','att-student')">
+                <option value="">— Select —</option>
+                <option>KG</option><option>Class 1</option><option>Class 2</option>
+                <option>Class 3</option><option>Class 4</option><option>Class 5</option><option>Class 6</option>
+              </select>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Student</label>
+              <select id="att-student"><option value="">— Pick class first —</option></select>
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field" style="margin:0">
+              <label>Date</label>
+              <input id="att-date" type="date"/>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Status</label>
+              <select id="att-status">
+                <option value="present">Present ✓</option>
+                <option value="absent">Absent ✗</option>
+                <option value="late">Late ⏰</option>
+                <option value="excused">Excused 📄</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Note (optional)</label>
+            <input id="att-note" type="text" placeholder="e.g. Sick, travel…"/>
+          </div>
+          <button class="btn btn-primary" onclick="saveAttendance()">Save Attendance ✓</button>
+        </div>
+      </div>
+
+      <!-- PAYMENT FORM -->
+      <div id="rec-pay" class="card" style="display:none">
+        <div class="card-title">💰 Record Payment <span style="font-family:'Amiri';font-weight:400;color:var(--text-soft);">الدفع</span></div>
+        <div class="record-form">
+          <div class="row-2">
+            <div class="field" style="margin:0">
+              <label>Class</label>
+              <select id="pay-class" onchange="loadStudentsForSelect('pay-class','pay-student')">
+                <option value="">— Select —</option>
+                <option>KG</option><option>Class 1</option><option>Class 2</option>
+                <option>Class 3</option><option>Class 4</option><option>Class 5</option><option>Class 6</option>
+              </select>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Student</label>
+              <select id="pay-student"><option value="">— Pick class first —</option></select>
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field" style="margin:0">
+              <label>Amount (GH₵)</label>
+              <input id="pay-amount" type="number" min="0" step="0.01" placeholder="0.00"/>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Date</label>
+              <input id="pay-date" type="date"/>
+            </div>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Payment For</label>
+            <select id="pay-type">
+              <option>School Fees</option>
+              <option>Books / Stationery</option>
+              <option>Uniform</option>
+              <option>Examination Fees</option>
+              <option>PTA Levy</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Term</label>
+            <select id="pay-term">
+              <option>Term 1</option><option>Term 2</option><option>Term 3</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Note (optional)</label>
+            <input id="pay-note" type="text" placeholder="e.g. Part payment…"/>
+          </div>
+          <button class="btn btn-primary" onclick="savePayment()">Save Payment ✓</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIEW RECORDS PANEL ─── -->
+    <div id="panel-view" class="panel">
+      <div class="panel-title">View Records</div>
+      <div class="panel-title-ar">عرض السجلات</div>
+
+      <div class="card">
+        <div class="row-2">
+          <div class="field" style="margin:0">
+            <label>Class</label>
+            <select id="view-class" onchange="loadViewStudents()">
+              <option value="">— Select —</option>
+              <option>KG</option><option>Class 1</option><option>Class 2</option>
+              <option>Class 3</option><option>Class 4</option><option>Class 5</option><option>Class 6</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Student</label>
+            <select id="view-student"><option value="">— Pick class first —</option></select>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-primary" onclick="viewStudentRecords()">View Records</button>
+        </div>
+      </div>
+
+      <div id="view-results"></div>
+    </div>
+
+    <!-- ── ADMIN PANEL ─────────── -->
+    <div id="panel-admin" class="panel">
+      <div class="panel-title">Admin Panel</div>
+      <div class="panel-title-ar">لوحة الإدارة</div>
+
+      <div class="card">
+        <div class="card-title">⏳ Pending Teacher Approvals</div>
+        <div id="pending-loading" class="loading-wrap" style="padding:20px"><div class="spinner"></div></div>
+        <div id="pending-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">👩‍🏫 All Teachers</div>
+        <div id="teachers-loading" class="loading-wrap" style="padding:20px"><div class="spinner"></div></div>
+        <div id="teachers-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🏫 Manage Students</div>
+        <button class="btn btn-outline" onclick="switchTab('students')">Go to Students Panel →</button>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+
+  <!-- BOTTOM TAB NAV -->
+  <nav class="tabnav">
+    <div class="tab-wrap">
+      <button class="tab-item active" id="tab-home" onclick="switchTab('home')">
+        <span class="tab-icon">🏠</span>
+        <span class="tab-label">Home</span>
+        <div class="tab-dot"></div>
+      </button>
+    </div>
+    <div class="tab-wrap">
+      <button class="tab-item" id="tab-students" onclick="switchTab('students')">
+        <span class="tab-icon">👥</span>
+        <span class="tab-label">Students</span>
+        <div class="tab-dot"></div>
+      </button>
+    </div>
+    <div class="tab-wrap">
+      <button class="tab-item" id="tab-records" onclick="switchTab('records')">
+        <span class="tab-icon">📝</span>
+        <span class="tab-label">Enter</span>
+        <div class="tab-dot"></div>
+      </button>
+    </div>
+    <div class="tab-wrap">
+      <button class="tab-item" id="tab-view" onclick="switchTab('view')">
+        <span class="tab-icon">📊</span>
+        <span class="tab-label">View</span>
+        <div class="tab-dot"></div>
+      </button>
+    </div>
+    <div class="tab-wrap" id="admin-tab-wrap" style="display:none">
+      <button class="tab-item" id="tab-admin" onclick="switchTab('admin')">
+        <span class="tab-icon">⚙️</span>
+        <span class="tab-label">Admin</span>
+        <div class="tab-dot"></div>
+        <span class="tab-badge" id="pending-badge" style="display:none">0</span>
+      </button>
+    </div>
+  </nav>
+
+</div><!-- /page-app -->
+
+<!-- ═══════════════════════════════════════
+     ADD STUDENT MODAL
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-add-student">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Student <span style="font-family:'Amiri',serif;font-size:18px;color:var(--text-soft);">إضافة طالب</span></div>
+    <div id="add-student-alert" class="alert"></div>
+    <div class="field">
+      <label>Full Name <span class="ar">الاسم الكامل</span></label>
+      <input id="ns-name" type="text" placeholder="Student's full name"/>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label>Class <span class="ar">الفصل</span></label>
+        <select id="ns-class">
+          <option value="">— Select —</option>
+          <option>KG</option><option>Class 1</option><option>Class 2</option>
+          <option>Class 3</option><option>Class 4</option><option>Class 5</option><option>Class 6</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Gender <span class="ar">الجنس</span></label>
+        <select id="ns-gender">
+          <option>Male / ذكر</option>
+          <option>Female / أنثى</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Guardian Name <span class="ar">اسم ولي الأمر</span></label>
+      <input id="ns-guardian" type="text" placeholder="Parent / guardian name"/>
+    </div>
+    <div class="field">
+      <label>Guardian Phone</label>
+      <input id="ns-phone" type="tel" placeholder="+233 ..."/>
+    </div>
+    <div class="field">
+      <label>Student ID (optional)</label>
+      <input id="ns-id" type="text" placeholder="e.g. HIS-2024-001"/>
+    </div>
+    <button class="btn btn-primary" onclick="saveStudent()" style="margin-bottom:10px;">Add Student</button>
+    <button class="btn btn-outline" onclick="closeModal('modal-add-student')">Cancel</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+//  GLOBALS
+// ═══════════════════════════════════════
+let db, auth, currentUser, currentUserData, adminEmail;
+let appInitialized = false;
+
+// ═══════════════════════════════════════
+//  PAGE ROUTING
+// ═══════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ═══════════════════════════════════════
+//  CONFIG SETUP
+// ═══════════════════════════════════════
+function saveConfig() {
+  const cfg = {
+    apiKey:            document.getElementById('cfg-apiKey').value.trim(),
+    authDomain:        document.getElementById('cfg-authDomain').value.trim(),
+    projectId:         document.getElementById('cfg-projectId').value.trim(),
+    storageBucket:     document.getElementById('cfg-storageBucket').value.trim(),
+    messagingSenderId: document.getElementById('cfg-messagingSenderId').value.trim(),
+    appId:             document.getElementById('cfg-appId').value.trim(),
+  };
+  adminEmail = document.getElementById('cfg-adminEmail').value.trim().toLowerCase();
+
+  if (!cfg.apiKey || !cfg.projectId || !cfg.authDomain) {
+    showAlert('config-alert', 'error', 'API Key, Auth Domain and Project ID are required.');
+    return;
+  }
+  if (!adminEmail) {
+    showAlert('config-alert', 'error', 'Please enter the admin email address.');
+    return;
+  }
+
+  localStorage.setItem('hisFirebaseConfig', JSON.stringify(cfg));
+  localStorage.setItem('hisAdminEmail', adminEmail);
+  initFirebase(cfg);
+}
+
+function initFirebase(cfg) {
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(cfg);
+    }
+    db   = firebase.firestore();
+    auth = firebase.auth();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        checkUserStatus(user);
+      } else {
+        currentUser = null;
+        showPage('page-login');
+      }
+    });
+
+    showPage('page-login');
+    appInitialized = true;
+  } catch(e) {
+    showAlert('config-alert', 'error', 'Firebase init failed: ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════
+async function checkUserStatus(user) {
+  try {
+    const doc = await db.collection('teachers').doc(user.uid).get();
+    if (!doc.exists) {
+      showPage('page-pending');
+      return;
+    }
+    const data = doc.data();
+    currentUserData = data;
+
+    if (data.status === 'pending') {
+      showPage('page-pending');
+      return;
+    }
+
+    if (data.status === 'approved' || data.role === 'admin') {
+      enterApp(data);
+    } else {
+      showPage('page-pending');
+    }
+  } catch(e) {
+    console.error(e);
+    showPage('page-login');
+  }
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if (!email || !pass) { showAlert('login-alert','error','Please enter email and password.'); return; }
+
+  try {
+    showAlert('login-alert','warn','Signing in…');
+    await auth.signInWithEmailAndPassword(email, pass);
+    // onAuthStateChanged handles the rest
+  } catch(e) {
+    let msg = 'Sign in failed. Check your email and password.';
+    if (e.code === 'auth/user-not-found') msg = 'No account found with this email.';
+    if (e.code === 'auth/wrong-password') msg = 'Incorrect password.';
+    if (e.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later.';
+    showAlert('login-alert','error', msg);
+  }
+}
+
+async function doSignup() {
+  const name  = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const phone = document.getElementById('su-phone').value.trim();
+  const cls   = document.getElementById('su-class').value;
+  const pass  = document.getElementById('su-pass').value;
+  const pass2 = document.getElementById('su-pass2').value;
+
+  if (!name || !email || !cls || !pass) {
+    showAlert('signup-alert','error','Please fill in all required fields.'); return;
+  }
+  if (pass.length < 8) {
+    showAlert('signup-alert','error','Password must be at least 8 characters.'); return;
+  }
+  if (pass !== pass2) {
+    showAlert('signup-alert','error','Passwords do not match.'); return;
+  }
+
+  try {
+    showAlert('signup-alert','warn','Creating account…');
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    const uid  = cred.user.uid;
+
+    const isAdmin = email.toLowerCase() === adminEmail;
+
+    await db.collection('teachers').doc(uid).set({
+      uid, name, email: email.toLowerCase(), phone, class: cls,
+      status: isAdmin ? 'approved' : 'pending',
+      role: isAdmin ? 'admin' : 'teacher',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    if (isAdmin) {
+      showAlert('signup-alert','success','Admin account created! Signing you in…');
+    } else {
+      showAlert('signup-alert','success','Account created! Awaiting admin approval.');
+    }
+  } catch(e) {
+    let msg = 'Signup failed: ' + e.message;
+    if (e.code === 'auth/email-already-in-use') msg = 'This email is already registered. Try signing in.';
+    showAlert('signup-alert','error', msg);
+  }
+}
+
+async function doForgot() {
+  const email = document.getElementById('forgot-email').value.trim();
+  if (!email) { showAlert('forgot-alert','error','Enter your email address.'); return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showAlert('forgot-alert','success','Reset link sent! Check your inbox (and spam folder).');
+  } catch(e) {
+    showAlert('forgot-alert','error','Could not send reset email: ' + e.message);
+  }
+}
+
+async function doLogout() {
+  await auth.signOut();
+  showPage('page-login');
+}
+
+// ═══════════════════════════════════════
+//  APP ENTRY
+// ═══════════════════════════════════════
+function enterApp(data) {
+  showPage('page-app');
+  document.getElementById('nav-user-name').textContent = data.name || 'Teacher';
+
+  if (data.role === 'admin') {
+    document.getElementById('admin-tab-wrap').style.display = 'flex';
+    loadPendingCount();
+  }
+
+  setDefaultDates();
+  loadDashboard();
+}
+
+function setDefaultDates() {
+  const today = new Date().toISOString().split('T')[0];
+  const els = ['att-date','pay-date'];
+  els.forEach(id => { const el = document.getElementById(id); if(el) el.value = today; });
+}
+
+// ═══════════════════════════════════════
+//  TAB NAVIGATION
+// ═══════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+
+  document.getElementById('tab-'+name)?.classList.add('active');
+  document.getElementById('panel-'+name)?.classList.add('active');
+
+  if (name === 'students') loadStudents();
+  if (name === 'admin')    loadAdminPanel();
+}
+
+function switchRecTab(name) {
+  ['result','att','pay'].forEach(t => {
+    document.getElementById('rec-'+t).style.display = t===name ? 'block' : 'none';
+    const btn = document.getElementById('rec-tab-'+t);
+    btn.className = 'btn btn-sm' + (t===name ? ' btn-primary' : ' btn-outline');
+  });
+}
+
+// ═══════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════
+async function loadDashboard() {
+  document.getElementById('home-loading').style.display = 'flex';
+  document.getElementById('home-content').style.display = 'none';
+
+  try {
+    const [studs, results, att, pays] = await Promise.all([
+      db.collection('students').get(),
+      db.collection('results').get(),
+      db.collection('attendance').get(),
+      db.collection('payments').get(),
+    ]);
+
+    let totalPay = 0;
+    pays.forEach(d => { totalPay += (d.data().amount || 0); });
+
+    document.getElementById('stat-students').textContent  = studs.size;
+    document.getElementById('stat-results').textContent   = results.size;
+    document.getElementById('stat-att').textContent       = att.size;
+    document.getElementById('stat-payments').textContent  = 'GH₵' + totalPay.toFixed(2);
+    document.getElementById('home-class-detail').innerHTML =
+      `<strong>${currentUserData.name}</strong> &nbsp;·&nbsp; ${currentUserData.class} &nbsp;·&nbsp;
+       <span class="badge badge-green">${currentUserData.role}</span>`;
+  } catch(e) { console.error(e); }
+
+  document.getElementById('home-loading').style.display = 'none';
+  document.getElementById('home-content').style.display = 'block';
+}
+
+// ═══════════════════════════════════════
+//  STUDENTS
+// ═══════════════════════════════════════
+async function loadStudents() {
+  const cls = document.getElementById('filter-class').value;
+  document.getElementById('students-loading').style.display = 'flex';
+  document.getElementById('students-list').innerHTML = '';
+
+  try {
+    let q = db.collection('students').orderBy('name');
+    if (cls !== 'all') q = db.collection('students').where('class','==',cls).orderBy('name');
+    const snap = await q.get();
+
+    document.getElementById('students-loading').style.display = 'none';
+
+    if (snap.empty) {
+      document.getElementById('students-list').innerHTML =
+        '<div style="text-align:center;color:var(--text-soft);padding:24px;font-size:14px;">No students found. Add one above.</div>';
+      return;
+    }
+
+    let html = '<div class="card" style="padding:0 18px">';
+    snap.forEach(doc => {
+      const d = doc.data();
+      html += `<div class="student-item">
+        <div>
+          <div class="student-name">${d.name}</div>
+          <div class="student-class">${d.class} &nbsp;·&nbsp; ${d.gender || ''} &nbsp;·&nbsp; ${d.studentId || ''}</div>
+        </div>
+        <span class="badge badge-green">${d.class}</span>
+      </div>`;
+    });
+    html += '</div>';
+    document.getElementById('students-list').innerHTML = html;
+  } catch(e) {
+    document.getElementById('students-loading').style.display = 'none';
+    document.getElementById('students-list').innerHTML = '<div class="alert alert-error show">'+e.message+'</div>';
+  }
+}
+
+async function loadStudentsForSelect(classSelectId, studentSelectId) {
+  const cls = document.getElementById(classSelectId).value;
+  const sel = document.getElementById(studentSelectId);
+  sel.innerHTML = '<option value="">Loading…</option>';
+
+  if (!cls) { sel.innerHTML = '<option value="">— Pick class first —</option>'; return; }
+
+  try {
+    const snap = await db.collection('students').where('class','==',cls).orderBy('name').get();
+    sel.innerHTML = '<option value="">— Select student —</option>';
+    snap.forEach(doc => {
+      const o = document.createElement('option');
+      o.value = doc.id;
+      o.textContent = doc.data().name;
+      sel.appendChild(o);
+    });
+  } catch(e) {
+    sel.innerHTML = '<option value="">Error loading</option>';
+  }
+}
+
+function openAddStudent() {
+  document.getElementById('ns-name').value = '';
+  document.getElementById('ns-class').value = '';
+  document.getElementById('ns-guardian').value = '';
+  document.getElementById('ns-phone').value = '';
+  document.getElementById('ns-id').value = '';
+  hideAlert('add-student-alert');
+  openModal('modal-add-student');
+}
+
+async function saveStudent() {
+  const name     = document.getElementById('ns-name').value.trim();
+  const cls      = document.getElementById('ns-class').value;
+  const gender   = document.getElementById('ns-gender').value;
+  const guardian = document.getElementById('ns-guardian').value.trim();
+  const phone    = document.getElementById('ns-phone').value.trim();
+  const sid      = document.getElementById('ns-id').value.trim();
+
+  if (!name || !cls) {
+    showAlert('add-student-alert','error','Name and class are required.'); return;
+  }
+
+  try {
+    await db.collection('students').add({
+      name, class: cls, gender, guardian, guardianPhone: phone,
+      studentId: sid, addedBy: currentUser.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    closeModal('modal-add-student');
+    toast('Student added ✓');
+    loadStudents();
+  } catch(e) {
+    showAlert('add-student-alert','error', e.message);
+  }
+}
+
+// ═══════════════════════════════════════
+//  RESULTS
+// ═══════════════════════════════════════
+async function saveResult() {
+  const studentId = document.getElementById('res-student').value;
+  const subject   = document.getElementById('res-subject').value.trim();
+  const score     = parseFloat(document.getElementById('res-score').value);
+  const outof     = parseFloat(document.getElementById('res-outof').value) || 100;
+  const grade     = document.getElementById('res-grade').value.trim();
+  const term      = document.getElementById('res-term').value;
+  const year      = document.getElementById('res-year').value.trim();
+  const remarks   = document.getElementById('res-remarks').value.trim();
+  const cls       = document.getElementById('res-class').value;
+
+  if (!studentId || !subject || isNaN(score)) {
+    toast('⚠️ Please fill class, student, subject and score.'); return;
+  }
+
+  try {
+    await db.collection('results').add({
+      studentId, studentClass: cls, subject, score, outOf: outof,
+      grade, term, academicYear: year, remarks,
+      enteredBy: currentUser.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    toast('Result saved ✓');
+    document.getElementById('res-score').value = '';
+    document.getElementById('res-grade').value = '';
+    document.getElementById('res-remarks').value = '';
+  } catch(e) {
+    toast('⚠️ ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════
+//  ATTENDANCE
+// ═══════════════════════════════════════
+async function saveAttendance() {
+  const studentId = document.getElementById('att-student').value;
+  const date      = document.getElementById('att-date').value;
+  const status    = document.getElementById('att-status').value;
+  const note      = document.getElementById('att-note').value.trim();
+  const cls       = document.getElementById('att-class').value;
+
+  if (!studentId || !date || !status) {
+    toast('⚠️ Please select class, student and date.'); return;
+  }
+
+  try {
+    await db.collection('attendance').add({
+      studentId, studentClass: cls, date, status, note,
+      enteredBy: currentUser.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    toast('Attendance saved ✓');
+    document.getElementById('att-note').value = '';
+    document.getElementById('att-status').value = 'present';
+  } catch(e) {
+    toast('⚠️ ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════
+//  PAYMENTS
+// ═══════════════════════════════════════
+async function savePayment() {
+  const studentId = document.getElementById('pay-student').value;
+  const amount    = parseFloat(document.getElementById('pay-amount').value);
+  const date      = document.getElementById('pay-date').value;
+  const type      = document.getElementById('pay-type').value;
+  const term      = document.getElementById('pay-term').value;
+  const note      = document.getElementById('pay-note').value.trim();
+  const cls       = document.getElementById('pay-class').value;
+
+  if (!studentId || isNaN(amount) || !date) {
+    toast('⚠️ Please select student, amount and date.'); return;
+  }
+
+  try {
+    await db.collection('payments').add({
+      studentId, studentClass: cls, amount, date, paymentFor: type,
+      term, note, enteredBy: currentUser.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    toast('Payment saved ✓');
+    document.getElementById('pay-amount').value = '';
+    document.getElementById('pay-note').value = '';
+  } catch(e) {
+    toast('⚠️ ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════
+//  VIEW RECORDS
+// ═══════════════════════════════════════
+async function loadViewStudents() {
+  loadStudentsForSelect('view-class','view-student');
+}
+
+async function viewStudentRecords() {
+  const studentId = document.getElementById('view-student').value;
+  const el = document.getElementById('view-results');
+
+  if (!studentId) { el.innerHTML = '<div class="alert alert-error show">Please select a student.</div>'; return; }
+
+  el.innerHTML = '<div class="loading-wrap"><div class="spinner"></div>Loading…</div>';
+
+  try {
+    const [results, att, pays] = await Promise.all([
+      db.collection('results').where('studentId','==',studentId).orderBy('createdAt','desc').get(),
+      db.collection('attendance').where('studentId','==',studentId).orderBy('date','desc').get(),
+      db.collection('payments').where('studentId','==',studentId).orderBy('date','desc').get(),
+    ]);
+
+    let html = '';
+
+    // Results
+    html += '<div class="card"><div class="card-title">📝 Results</div>';
+    if (results.empty) {
+      html += '<div style="color:var(--text-soft);font-size:13px;">No results yet.</div>';
+    } else {
+      html += '<table class="att-table"><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Term</th></tr>';
+      results.forEach(d => {
+        const r = d.data();
+        html += `<tr><td>${r.subject}</td><td>${r.score}/${r.outOf||100}</td><td>${r.grade||'—'}</td><td>${r.term||'—'}</td></tr>`;
+      });
+      html += '</table>';
+    }
+    html += '</div>';
+
+    // Attendance
+    html += '<div class="card"><div class="card-title">✅ Attendance</div>';
+    if (att.empty) {
+      html += '<div style="color:var(--text-soft);font-size:13px;">No records yet.</div>';
+    } else {
+      html += '<table class="att-table"><tr><th>Date</th><th>Status</th><th>Note</th></tr>';
+      att.forEach(d => {
+        const r = d.data();
+        const badge = r.status==='present' ? 'badge-green' : r.status==='absent' ? 'badge-red' : 'badge-gold';
+        html += `<tr><td>${r.date}</td><td><span class="badge ${badge}">${r.status}</span></td><td>${r.note||'—'}</td></tr>`;
+      });
+      html += '</table>';
+    }
+    html += '</div>';
+
+    // Payments
+    let total = 0;
+    pays.forEach(d => { total += (d.data().amount||0); });
+    html += `<div class="card"><div class="card-title">💰 Payments &nbsp; <span style="font-size:13px;color:var(--green-mid)">Total: GH₵${total.toFixed(2)}</span></div>`;
+    if (pays.empty) {
+      html += '<div style="color:var(--text-soft);font-size:13px;">No payments yet.</div>';
+    } else {
+      html += '<table class="att-table"><tr><th>Date</th><th>Amount</th><th>For</th><th>Term</th></tr>';
+      pays.forEach(d => {
+        const r = d.data();
+        html += `<tr><td>${r.date}</td><td>GH₵${(r.amount||0).toFixed(2)}</td><td>${r.paymentFor||'—'}</td><td>${r.term||'—'}</td></tr>`;
+      });
+      html += '</table>';
+    }
+    html += '</div>';
+
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div class="alert alert-error show">' + e.message + '</div>';
+  }
+}
+
+// ═══════════════════════════════════════
+//  ADMIN PANEL
+// ═══════════════════════════════════════
+async function loadAdminPanel() {
+  loadPendingTeachers();
+  loadAllTeachers();
+}
+
+async function loadPendingTeachers() {
+  const el = document.getElementById('pending-list');
+  document.getElementById('pending-loading').style.display = 'flex';
+  el.innerHTML = '';
+
+  try {
+    const snap = await db.collection('teachers').where('status','==','pending').get();
+    document.getElementById('pending-loading').style.display = 'none';
+
+    if (snap.empty) {
+      el.innerHTML = '<div style="color:var(--text-soft);font-size:13px;padding:8px 0;">No pending approvals.</div>';
+      return;
+    }
+
+    snap.forEach(doc => {
+      const d = doc.data();
+      const div = document.createElement('div');
+      div.className = 'pending-item';
+      div.innerHTML = `
+        <div class="pending-name">${d.name}</div>
+        <div class="pending-email">${d.email} &nbsp;·&nbsp; ${d.class}</div>
+        <div class="pending-actions">
+          <button class="btn btn-sm btn-primary" onclick="approveTeacher('${doc.id}')">✓ Approve</button>
+          <button class="btn btn-sm btn-danger" onclick="rejectTeacher('${doc.id}')">✗ Reject</button>
+        </div>`;
+      el.appendChild(div);
+    });
+  } catch(e) {
+    document.getElementById('pending-loading').style.display = 'none';
+    el.innerHTML = '<div class="alert alert-error show">'+e.message+'</div>';
+  }
+}
+
+async function approveTeacher(uid) {
+  await db.collection('teachers').doc(uid).update({ status: 'approved' });
+  toast('Teacher approved ✓');
+  loadPendingTeachers();
+  loadAllTeachers();
+  loadPendingCount();
+}
+
+async function rejectTeacher(uid) {
+  await db.collection('teachers').doc(uid).update({ status: 'rejected' });
+  toast('Teacher rejected.');
+  loadPendingTeachers();
+  loadAllTeachers();
+  loadPendingCount();
+}
+
+async function loadAllTeachers() {
+  const el = document.getElementById('teachers-list');
+  document.getElementById('teachers-loading').style.display = 'flex';
+  el.innerHTML = '';
+
+  try {
+    const snap = await db.collection('teachers').orderBy('name').get();
+    document.getElementById('teachers-loading').style.display = 'none';
+
+    if (snap.empty) { el.innerHTML = '<div style="color:var(--text-soft);font-size:13px;">No teachers yet.</div>'; return; }
+
+    snap.forEach(doc => {
+      const d = doc.data();
+      const badge = d.status==='approved' ? 'badge-green' : d.status==='pending' ? 'badge-gold' : 'badge-red';
+      const div = document.createElement('div');
+      div.className = 'student-item';
+      div.innerHTML = `
+        <div>
+          <div class="student-name">${d.name} ${d.role==='admin'?'<span class="badge badge-gold">Admin</span>':''}</div>
+          <div class="student-class">${d.email} &nbsp;·&nbsp; ${d.class||''}</div>
+        </div>
+        <span class="badge ${badge}">${d.status||'—'}</span>`;
+      el.appendChild(div);
+    });
+  } catch(e) {
+    document.getElementById('teachers-loading').style.display = 'none';
+  }
+}
+
+async function loadPendingCount() {
+  try {
+    const snap = await db.collection('teachers').where('status','==','pending').get();
+    const badge = document.getElementById('pending-badge');
+    if (snap.size > 0) {
+      badge.textContent = snap.size;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('show');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+// Close modal on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => {
+    if (e.target === m) m.classList.remove('show');
+  });
+});
+
+// ═══════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════
+//  ALERTS
+// ═══════════════════════════════════════
+function showAlert(id, type, msg) {
+  const el = document.getElementById(id);
+  el.className = 'alert alert-' + type + ' show';
+  el.textContent = msg;
+}
+
+function hideAlert(id) {
+  const el = document.getElementById(id);
+  el.className = 'alert';
+  el.textContent = '';
+}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+(function init() {
+  const savedCfg   = localStorage.getItem('hisFirebaseConfig');
+  const savedAdmin = localStorage.getItem('hisAdminEmail');
+
+  if (savedCfg) {
+    try {
+      adminEmail = savedAdmin || '';
+      const cfg = JSON.parse(savedCfg);
+
+      // Pre-fill config form fields
+      document.getElementById('cfg-apiKey').value            = cfg.apiKey || '';
+      document.getElementById('cfg-authDomain').value        = cfg.authDomain || '';
+      document.getElementById('cfg-projectId').value         = cfg.projectId || '';
+      document.getElementById('cfg-storageBucket').value     = cfg.storageBucket || '';
+      document.getElementById('cfg-messagingSenderId').value = cfg.messagingSenderId || '';
+      document.getElementById('cfg-appId').value             = cfg.appId || '';
+      document.getElementById('cfg-adminEmail').value        = adminEmail;
+
+      initFirebase(cfg);
+    } catch(e) {
+      showPage('page-config');
+    }
+  } else {
+    showPage('page-config');
+  }
+})();
+</script>
+</body>
+</html>
